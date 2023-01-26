@@ -1,18 +1,18 @@
 {
-    "number of documents": 2,
-    "number of tokens": 15,
-    "average number of tokens per document": 7.5,
-    "average length of tokens (in all documents)": 5.533,
+    "number of documents": 500,
+    "number of tokens": 3612,
+    "average number of tokens per document": 7.224,
+    "average length of tokens (in all documents)": 5.525,
     "top of most frequent tokens": {
-        "data": 2,
-        "ecole": 1,
-        "d'ingénieur": 1,
-        "statistique,": 1,
-        "science": 1,
-        "et": 1,
-        "big": 1,
-        "|": 1,
-        "ensai": 1,
-        "rennes": 1
+        "-": 167,
+        "de": 147,
+        "|": 109,
+        "—": 72,
+        "wikipédia": 67,
+        "et": 61,
+        "le": 53,
+        "icon": 53,
+        "la": 52,
+        ":": 42
     }
 }
