@@ -1,8 +1,9 @@
 from INDEX.index import Index
+import json
 
 class Statistics:
 
-    def __init__(self, urls=[]):
+    def __init__(self, urls):
         self.urls = urls
 
     def stats_one_url(self, url):
@@ -11,7 +12,7 @@ class Statistics:
         defined by its URL
         '''
         # tokenization
-        index = Index()
+        index = Index(self.urls)
         tokens = index.tokenize_webpage(url)
         infos = {}
         # number of tokens
@@ -56,13 +57,19 @@ class Statistics:
         # return final results in a dictionnary
         infos = {}
         # number of docs
-        infos['nb_docs'] = len(self.urls)
+        infos['number of documents'] = len(self.urls)
         # total number of tokens
-        infos['nb_tokens'] = nb_tokens
+        infos['number of tokens'] = nb_tokens
         # average token
-        infos['avg_len_tokens'] = round(len_tokens / nb_tokens , 3)
+        infos['average number of tokens per document'] = round(len_tokens / nb_tokens , 3)
         # top 10 of most frequent tokens
-        infos['count_tokens'] = list(count_final.keys())[0:10]
+        infos['top 10 of most frequent token'] = list(count_final.keys())[0:10]
+
+        res_json = json.dumps(infos, indent = 4, ensure_ascii=False)
+
+        with open('metadata.json', "w") as outfile:
+            outfile.write(res_json)
+
         return infos
 
 

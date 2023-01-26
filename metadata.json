@@ -1,0 +1,17 @@
+{
+    "number of documents": 500,
+    "number of tokens": 3557,
+    "average number of tokens per document": 5.465,
+    "top 10 of most frequent token": [
+        "-",
+        "de",
+        "—",
+        "wikipédia",
+        "et",
+        "le",
+        "icon",
+        "la",
+        "d'",
+        "fr"
+    ]
+}

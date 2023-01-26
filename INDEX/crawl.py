@@ -13,7 +13,9 @@ class Crawl:
         '''
         res = None
         try:
-            get_url = requests.get(url)
+            get_url = requests.get(url, timeout=2, verify=False)
+            # timeout = 2 avoid to loose time if the connection is impossible
+            # verify=False resolve problem of certificate in some cases
             if get_url.status_code == 200:
                 res = get_url.text
             return res
