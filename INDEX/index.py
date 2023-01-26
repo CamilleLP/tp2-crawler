@@ -1,14 +1,14 @@
 from bs4 import BeautifulSoup
-import re
 import json
+from nltk.stem import *
 from INDEX.crawl import Crawl
 
 class Index:
 
-    def __init__(self, urls):
+    def __init__(self, urls = None):
         self.urls = urls
 
-    def tokenize_webpage(self, url):
+    def tokenize_title(self, url, use_stemmer = False, tags = 'title'):
         '''
         tokenize_webpage: extracts content in paragraphs and header tags and tokenize them
         '''
@@ -19,24 +19,30 @@ class Index:
             # extract title of the webpage
             soup = BeautifulSoup(html, 'html.parser')
             text = ''
-            for word in soup.find_all("title", recursive=True):
+            for word in soup.find_all(tags, recursive=True):
                 text += " " + word.text
-            
-            # handle special characters
-            text = re.sub(r"[:«»\"|,.;@#?!&$\[\]\(\)…]", " ", text)
-            text = text.replace("’", "' ")
-            text = text.replace("'", "' ")
-            text = text.lower()
 
+            text = text.lower()
+            
             # tokenization
             tokens = text.split()
+
+            # stemmer
+            if use_stemmer:
+                stem_tokens = []
+                for token in tokens:
+                    stemmer = SnowballStemmer('french')
+                    stem = stemmer.stem(token)
+                    stem_tokens.append(stem)
+                tokens = stem_tokens
+
         return tokens
 
-    def index_page(self, url):
+    def index_page(self, url, use_stemmer = False, tags = 'title'):
         '''
         index_page create a positional index for only one webpage with a given URL
         '''
-        tokens = self.tokenize_webpage(url)
+        tokens = self.tokenize_title(url, use_stemmer=use_stemmer, tags=tags)
         index = {}
         if tokens:
             for pos_token in range(len(tokens)):
@@ -56,41 +62,56 @@ class Index:
                     index[tokens[pos_token]][url]['positions'] = [pos_token]
         return index
 
-    def index_total(self, position = True):
+    def index_total(self, position = True, url_name = False, use_stemmer = False, tags = 'title'):
         '''
         index_total create a positional index (position = True) or a
         simple one for all webpages (self.urls)
         '''
         index = {}
         for url in self.urls:
-            index_url = self.index_page(url)
+            index_url = self.index_page(url, use_stemmer=use_stemmer, tags=tags)
+        
+            if not url_name:
+                url_ind = str(self.urls.index(url))
+            else:
+                url_ind = url
+
             for token in list(index_url.keys()):
                 new = True
                 for token_index in list(index.keys()):
                     # if the token has already appeared for another webpage, 
                     # then add url, position and count
                     if token == token_index:
-                        index[token_index][url] = {}
+                        index[token_index][url_ind] = {}
                         if position:
-                            index[token_index][url]['positions'] = index_url[token][url]['positions']
-                        index[token_index][url]['count'] = len(index_url[token][url]['positions'])
+                            index[token_index][url_ind]['positions'] = index_url[token][url]['positions']
+                        index[token_index][url_ind]['count'] = len(index_url[token][url]['positions'])
                         new = False
                         break
                 if new:
                     # if it has not appeared, then instanciate a new token with url, 
                     # position and count
                     index[token] = {}
-                    index[token][url] = {}
+                    index[token][url_ind] = {}
                     if position:
-                        index[token][url]['positions'] = index_url[token][url]['positions']
-                    index[token][url]['count'] = len(index_url[token][url]['positions'])
+                        index[token][url_ind]['positions'] = index_url[token][url]['positions']
+                    index[token][url_ind]['count'] = len(index_url[token][url]['positions'])
         
         # write the result in a json file
         res_json = json.dumps(index, indent = 4, ensure_ascii=False)
-        if position:
-            file_name = 'title.pos_index.json'
+
+        if use_stemmer:
+            preprefix = 'mon_stemmer.'
         else:
-            file_name = 'title.non_pos_index.json'
+            preprefix = ''
+
+        prefix = tags + '.'
+        if position:
+            body = 'pos_index.json'
+        else:
+            body = 'non_pos_index.json'
+        
+        file_name = preprefix + prefix + body
 
         with open(file_name, "w") as outfile:
             outfile.write(res_json)

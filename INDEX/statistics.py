@@ -3,7 +3,7 @@ import json
 
 class Statistics:
 
-    def __init__(self, urls):
+    def __init__(self, urls = None):
         self.urls = urls
 
     def stats_one_url(self, url):
@@ -13,7 +13,7 @@ class Statistics:
         '''
         # tokenization
         index = Index(self.urls)
-        tokens = index.tokenize_webpage(url)
+        tokens = index.tokenize_title(url)
         infos = {}
         # number of tokens
         infos['count'] = len(tokens)
@@ -60,10 +60,16 @@ class Statistics:
         infos['number of documents'] = len(self.urls)
         # total number of tokens
         infos['number of tokens'] = nb_tokens
-        # average token
-        infos['average number of tokens per document'] = round(len_tokens / nb_tokens , 3)
+        # average number of tokens token
+        infos['average number of tokens per document'] = round(nb_tokens / len(self.urls) , 3)
+        # average length of tokens in documents
+        infos['average length of tokens (in all documents)'] = round(len_tokens / nb_tokens , 3)
         # top 10 of most frequent tokens
-        infos['top 10 of most frequent token'] = list(count_final.keys())[0:10]
+        top = {}
+        max_top = min(len(list(count_final.keys())), 10)
+        for token in list(count_final.keys())[0:max_top]:
+            top[token] = count_final[token]
+        infos['top of most frequent tokens'] = top
 
         res_json = json.dumps(infos, indent = 4, ensure_ascii=False)
 
